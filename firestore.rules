@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Current live ranking snapshot
+    match /ranking_current/{docId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Historical ranking snapshots for timeline charts & analytics
+    match /ranking_history/{snapshotId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Point change events
+    match /ranking_events/{eventId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

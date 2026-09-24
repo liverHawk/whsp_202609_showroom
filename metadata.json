@@ -1,0 +1,8 @@
+{
+  "name": "SHOWROOM ギフトランキング",
+  "description": "SHOWROOMのギフトランキングAPIから取得した順位、スコア、ルーム情報を一覧表示するアプリケーション",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
