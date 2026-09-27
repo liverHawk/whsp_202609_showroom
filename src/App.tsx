@@ -57,14 +57,14 @@ export default function App() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/ranking?_t=${Date.now()}`);
+      const res = await fetch(`${import.meta.env.BASE_URL}api/ranking?_t=${Date.now()}`);
       if (res.ok) {
         const json = await res.json();
         if (json.data) {
           setData(json.data);
         }
       }
-      const histRes = await fetch(`/api/history?_t=${Date.now()}`);
+      const histRes = await fetch(`${import.meta.env.BASE_URL}api/history?_t=${Date.now()}`);
       if (histRes.ok) {
         const histJson = await histRes.json();
         if (Array.isArray(histJson.history)) {

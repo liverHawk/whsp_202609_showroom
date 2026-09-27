@@ -5,6 +5,8 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    // whsp-home の /sh/202609 配下で配信する
+    base: '/sh/202609/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
@@ -18,10 +20,10 @@ export default defineConfig(() => {
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
       proxy: {
-        '/api/showroom': {
+        '/sh/202609/api/showroom': {
           target: 'https://public-api.showroom-cdn.com',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/showroom/, ''),
+          rewrite: (path) => path.replace(/^\/sh\/202609\/api\/showroom/, ''),
         },
       },
     },
