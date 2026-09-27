@@ -1,66 +1,31 @@
-import express from 'express';
+import express, { Router } from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
-import { FINAL_CONFIRMED_DATA, FINAL_HISTORY_DATA } from './src/data/finalArchive';
+import { healthBody, historyBody, rankingBody } from './api/_final';
+import { FINAL_CONFIRMED_DATA } from './src/data/finalArchive';
 
 async function startServer() {
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  // whsp-home の /sh/202609 配下で配信する (vite.config.ts の base と揃える)
+  const BASE_PATH = '/sh/202609';
+  const api = Router();
 
   app.use(express.json());
+  app.get('/', (_req, res) => res.redirect(`${BASE_PATH}/`));
+  app.use(`${BASE_PATH}/api`, api);
 
-  // Health check endpoint
-  app.get('/api/health', (_req, res) => {
-    res.json({
-      status: 'ok',
-      mode: 'archived_final',
-      isEventEnded: true,
-      isEventFrozen: true,
-      isFinalResult: true,
-      timestamp: Date.now(),
-    });
-  });
-
-  // Ranking endpoint: Returns the definitive frozen final results
-  app.get('/api/ranking', (_req, res) => {
-    res.json({
-      ...FINAL_CONFIRMED_DATA,
-      isEventEnded: true,
-      isEventFrozen: true,
-      isFinalResult: true,
-      apiStopped: true,
-      dbDeleted: true,
-      message: 'イベント終了・最終結果確定済み（外部API停止・データベース削除完了）',
-    });
-  });
-
-  // Score History endpoint: Returns the full frozen history snapshots
-  app.get('/api/history', (_req, res) => {
-    res.json({
-      history: FINAL_HISTORY_DATA,
-      count: FINAL_HISTORY_DATA.length,
-      isFinalResult: true,
-    });
-  });
-
-  // Refresh endpoint: Confirms results are final and external API calls are stopped
-  app.post('/api/refresh', (_req, res) => {
-    res.json({
-      ...FINAL_CONFIRMED_DATA,
-      isEventEnded: true,
-      isEventFrozen: true,
-      isFinalResult: true,
-      apiStopped: true,
-      dbDeleted: true,
-      message: 'イベント終了・最終結果確定済み（外部API停止・データベース削除完了）',
-    });
-  });
+  // API (Vercel では api/*.ts が同じレスポンスを返す)
+  api.get('/health', (_req, res) => res.json(healthBody()));
+  api.get('/ranking', (_req, res) => res.json(rankingBody()));
+  api.get('/history', (_req, res) => res.json(historyBody()));
+  api.post('/refresh', (_req, res) => res.json(rankingBody()));
 
   // Vite middleware for dev / static files for production
   if (process.env.NODE_ENV === 'production') {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (_req, res) => {
+    app.use(BASE_PATH, express.static(distPath));
+    app.get(`${BASE_PATH}/*`, (_req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   } else {
